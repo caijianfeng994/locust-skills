@@ -11,8 +11,9 @@ source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -e .
 
-# 2. 准备 Web UI 配置
+# 2. 复制配置并先改完，再执行后面的命令。字段见下方「使用前配置」
 cp locust-skills-ui.example.yaml locust-skills-ui.yaml
+cp locust-skills-ui.constraint.example.md locust-skills-ui.constraint.local.md
 
 # 3. 使用 YApi 链接执行 Web UI 压测
 locust-skills-ui run \
@@ -35,7 +36,66 @@ locust-skills-ui run \
   --config locust-skills-ui.yaml
 ```
 
-安装完成后，也可以在 Cursor 中输入 `/locust_skills_ui`，按项目内置 command 和 skill 执行同一套流程。
+安装完成后，也可以在 Cursor 中输入 `/locust_skills_ui`，按项目内置 command 和 skill 执行同一套流程。Cursor 与 CLI 都读取同一份 `locust-skills-ui.yaml`，使用前先改完配置。
+
+## 使用前配置
+
+第一次压测前，把示例复制成下面两个本地文件并填写。它们已在 `.gitignore` 中，只留在本机。
+
+```bash
+cp locust-skills-ui.example.yaml locust-skills-ui.yaml
+cp locust-skills-ui.constraint.example.md locust-skills-ui.constraint.local.md
+```
+
+默认读取仓库根目录的 `locust-skills-ui.yaml`。换路径时设置 `LOCUST_SKILLS_UI_CONFIG`。
+
+### 凭证
+
+同一项同时存在时，环境变量优先，否则读取配置字段。
+
+| 用途 | 环境变量 | 配置字段 |
+| --- | --- | --- |
+| YApi Token | `YAPI_GLOBAL_TOKEN` | `yapi.token` |
+| YApi 站点 | `YAPI_BASE_URL` | `yapi.base_url` |
+| YApi MCP | `YAPI_COMMON_MCP_URL` | `yapi.mcp_url` |
+| 火山引擎 Access Key | `VOLCENGINE_ACCESS_KEY` | `volcengine.access_key` |
+| 火山引擎 Secret Key | `VOLCENGINE_SECRET_KEY` | `volcengine.secret_key` |
+| 火山引擎地域 | `VOLCENGINE_REGION` | `vmp.region` |
+
+```bash
+export YAPI_GLOBAL_TOKEN="<yapi-token>"
+export YAPI_BASE_URL="https://yapi.example.com"
+export YAPI_COMMON_MCP_URL="http://yapi-mcp.example/mcp"
+export VOLCENGINE_ACCESS_KEY="<access-key>"
+export VOLCENGINE_SECRET_KEY="<secret-key>"
+export VOLCENGINE_REGION="cn-beijing"
+```
+
+用环境变量提供凭证时，把 `locust-skills-ui.yaml` 里对应字段留空。
+
+### 需要提前填写的地址
+
+| 配置字段 | 何时需要 |
+| --- | --- |
+| `locust.web_url` | 打开 Locust Web UI |
+| `service.host_suffix` | 由服务名拼被压测 `host`，示例为 `.internal` |
+| `gitlab.project_url` | 推送 `locustfile.py` |
+| `gitlab.remote_name` | Git 远程名，默认 `origin` |
+| `feishu.report_folder_url` | 上传压测报告的飞书目录 |
+| `feishu.report_folder_token` | 同上，目录 token |
+| `vmp.stage_workspace_id` | 查预发布容器指标 |
+| `vmp.cloud_workspace_id` | 查 Redis / PG 云指标 |
+| `vmp.preprod_cluster` | 容器 PromQL 的集群 |
+| `vmp.namespace` | 容器 PromQL 的命名空间 |
+| `vmp.project_name` | 云指标的 `ProjectName`，默认 `stage` |
+| `vmp.metrics_mcp_url` | 应用侧指标 MCP，可空 |
+| `ops.*` | 造数脚本的接口地址，不用造数可留空 |
+
+`vmp.workspace_id` 保留给 CLI 监控插件。Cursor 技能查容器用 `vmp.stage_workspace_id`，查 Redis / PG 用 `vmp.cloud_workspace_id`。
+
+监控对照表写在 `constraint.file` 指向的文件，默认是 `locust-skills-ui.constraint.local.md`。按 `locust-skills-ui.constraint.example.md` 的表头，填入真实的容器服务、Redis、PG 实例名和实例 ID。表里没有的服务不要手写猜测 ID。
+
+造数脚本在对应环境变量为空时，会调用 `skills/locust-skills-ui/scripts/read_config_value.py` 读取 `ops.*`。例如 `BATCH_REGISTER_URL` 为空时读取 `ops.batch_register_url`。
 
 ## Cursor 命令
 
@@ -160,22 +220,6 @@ reports/load_test_report.md
 | `vmp-monitoring` | 采集 VMP 监控上下文 |
 | `generator-report` | 生成 Markdown 压测报告 |
 
-## 配置与凭证
-
-Web UI 流程默认读取：
-
-```bash
-locust-skills-ui.yaml
-```
-
-火山云和 YApi 凭证只通过环境变量提供：
-
-```bash
-export VOLCENGINE_ACCESS_KEY="<access-key>"
-export VOLCENGINE_SECRET_KEY="<secret-key>"
-export YAPI_GLOBAL_TOKEN="<yapi-token>"
-```
-
 ## 打包与验证
 
 本项目可直接打包为 CLI：
@@ -252,7 +296,7 @@ python -m pip install -e .
 
 ### VMP 数据缺失
 
-VMP 失败不会丢弃 Locust 结果，最终报告会标记监控数据缺失。请检查 `VOLCENGINE_ACCESS_KEY`、`VOLCENGINE_SECRET_KEY`、`workspace_id`、时间窗口和服务名。
+VMP 失败不会丢弃 Locust 结果，最终报告会标记监控数据缺失。请检查 `VOLCENGINE_ACCESS_KEY`、`VOLCENGINE_SECRET_KEY`（或 `volcengine.access_key`、`volcengine.secret_key`）、`vmp.stage_workspace_id`、`vmp.cloud_workspace_id`、时间窗口和服务名是否已写入 `locust-skills-ui.yaml`。
 
 ## 安全注意事项
 
