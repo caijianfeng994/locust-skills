@@ -9,3 +9,6 @@ reports/
 locust-skills-ui.yaml
 locust-skills-ui.constraint.local.md
 skills/locust-skills-ui/vmp-monitoring/volcengine-mcp-server/
+
+.DS_Store
+**/__pycache__/
