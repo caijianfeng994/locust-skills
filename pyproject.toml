@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "locust-skills"
+version = "0.1.0"
+description = "Locust performance testing workflow CLI for YApi, GitLab, MinIO, VMP and reports."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "locust==2.45.0",
+    "geventhttpclient",
+    "minio",
+    "requests>=2",
+    "typer",
+    "pyyaml",
+    "langchain-mcp-adapters",
+]
+
+[project.scripts]
+locust-skills-ui = "locust_skills_ui.cli:app"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["locust_skills_ui"]
+namespaces = false
+
+[tool.setuptools.package-data]
+locust_skills_ui = [
+    "SKILL.md",
+    "constraint/SKILL.md",
+    "generator-locust/SKILL.md",
+    "generator-report/SKILL.md",
+    "gitlab-upload/SKILL.md",
+    "ops-assistant/SKILL.md",
+    "playwright-cli/SKILL.md",
+    "vmp-monitoring/SKILL.md",
+    "yapi-rag/SKILL.md",
+]
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]

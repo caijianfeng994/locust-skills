@@ -1,0 +1,65 @@
+# 复制为 locust-skills-ui.yaml 后填写。locust-skills-ui.yaml 已加入 .gitignore，不要提交。
+# 凭证优先用环境变量：YAPI_GLOBAL_TOKEN、VOLCENGINE_ACCESS_KEY、VOLCENGINE_SECRET_KEY。
+# 不要把 token / Access Key 写进可提交文件。
+
+volcengine:
+  access_key: ""
+  secret_key: ""
+
+yapi:
+  base_url: ""
+  mcp_url: ""
+
+locust:
+  web_url: ""
+  deploy_wait_seconds: 60
+  api_timeout_seconds: 30
+
+service:
+  # 从接口 path 第一段得到服务名后，拼成 http://<service><host_suffix>
+  host_suffix: ".internal"
+
+gitlab:
+  project_url: ""
+  remote_name: origin
+
+feishu:
+  report_folder_url: ""
+  report_folder_token: ""
+
+vmp:
+  workspace_id: ""
+  stage_workspace_id: ""
+  cloud_workspace_id: ""
+  preprod_cluster: ""
+  prod_cluster: ""
+  namespace: ""
+  project_name: stage
+  region: cn-beijing
+  step: 60s
+  metrics_mcp_url: ""
+  plugin: vmp
+  service_queries:
+    - 'up{service="$service"}'
+  redis_queries: []
+  database_queries: []
+
+constraint:
+  # 本地约束表，不要提交。可从 locust-skills-ui.constraint.example.md 复制。
+  file: locust-skills-ui.constraint.local.md
+
+reports:
+  directory: reports
+
+ops:
+  gateway_base_url: ""
+  sku_good_kind_list_url: ""
+  user_allocation_find_family_url: ""
+  user_allocation_apply_presales_url: ""
+  xlab_write_abgroup_url: ""
+  batch_register_url: ""
+  identity_history_bigvip_url: ""
+  usercore_base_url: ""
+  goods_list_url: ""
+  normal_good_url: ""
+  order_url: ""

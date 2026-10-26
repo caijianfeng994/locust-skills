@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "locust-skills-ui-vmp"
+version = "0.1.0"
+description = "VMP monitoring plugin for locust-skills-ui."
+requires-python = ">=3.10"
+dependencies = [
+    "locust-skills>=0.1.0",
+    "langchain-mcp-adapters",
+    "mcp[cli]>=1.12.0",
+    "python-dotenv",
+    "requests>=2",
+    "volcengine-python-sdk>=4.0.30",
+]
+
+[project.entry-points."locust_skills_ui.monitoring"]
+vmp = "locust_skills_ui_vmp.plugin:plugin"
+
+[tool.setuptools.packages.find]
+where = [
+    "src",
+    "../../src/locust_skills_ui/vmp-monitoring/volcengine-mcp-server/server/mcp_server_vmp/src",
+]
+include = ["locust_skills_ui_vmp*", "mcp_server_vmp*"]

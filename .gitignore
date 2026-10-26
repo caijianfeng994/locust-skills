@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.venv/
+reports/
+locust-skills-ui.yaml
+locust-skills-ui.constraint.local.md
+skills/locust-skills-ui/vmp-monitoring/volcengine-mcp-server/
